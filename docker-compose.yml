@@ -1,0 +1,33 @@
+services:
+  db:
+    image: mariadb:10.6
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+
+  mediawiki:
+    build: .
+    image: mediawiki
+    depends_on:
+      - db
+    ports:
+      - "8080:80"
+    volumes:
+      - images:/var/www/html/images
+      # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+    environment:
+      MW_DB_TYPE: mysql
+      MW_DB_SERVER: db
+      MW_DB_NAME: ${MYSQL_DATABASE}
+      MW_DB_USER: ${MYSQL_USER}
+      MW_DB_PASSWORD: ${MYSQL_PASSWORD}
+      MW_DB_PORT: 3306
+
+volumes:
+  db_data:
+  images:
